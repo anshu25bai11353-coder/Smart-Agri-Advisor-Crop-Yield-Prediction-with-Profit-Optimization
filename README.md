@@ -1,0 +1,2 @@
+# Crop-Yield-Prediction-with-Profit-Optimization-AI-ML
+Smart Agri Advisor uses machine learning (Random Forest, XGBoost, Ensemble) to predict crop yields from soil and weather data. It provides fertilizer recommendations, profit optimization with cost analysis, and ROI calculations. Farmers get actionable insights through an interactive Streamlit dashboard to maximize productivity and profitability.
