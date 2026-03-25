@@ -1,17 +1,17 @@
 print("hi")
+
+# Datasets 
+
 import pandas as pd
 import numpy as np
 import random
 import os
 
-# Create directory if not exists
 os.makedirs('data/raw', exist_ok=True)
 
-# Set seed for reproducibility
 np.random.seed(42)
 random.seed(42)
 
-# Define crops and their optimal conditions
 crops = {
     'Rice': {'N': 80, 'P': 40, 'K': 40, 'pH': 6.5, 'temp': 28, 'humidity': 80, 'rainfall': 200, 'yield_factor': 3.5},
     'Wheat': {'N': 120, 'P': 60, 'K': 60, 'pH': 7.0, 'temp': 20, 'humidity': 60, 'rainfall': 150, 'yield_factor': 3.0},
@@ -25,7 +25,6 @@ crops = {
     'Tomato': {'N': 120, 'P': 60, 'K': 80, 'pH': 6.5, 'temp': 24, 'humidity': 70, 'rainfall': 120, 'yield_factor': 3.0}
 }
 
-# Generate dataset
 n_samples = 5000
 data = []
 
@@ -33,7 +32,6 @@ for _ in range(n_samples):
     crop = random.choice(list(crops.keys()))
     optimal = crops[crop]
     
-    # Add variation around optimal values
     N = max(0, optimal['N'] + np.random.normal(0, 30))
     P = max(0, optimal['P'] + np.random.normal(0, 20))
     K = max(0, optimal['K'] + np.random.normal(0, 20))
@@ -42,7 +40,6 @@ for _ in range(n_samples):
     humidity = optimal['humidity'] + np.random.normal(0, 10)
     rainfall = optimal['rainfall'] + np.random.normal(0, 50)
     
-    # Calculate yield based on distance from optimal conditions
     distance = (
         abs(N - optimal['N']) / optimal['N'] * 0.3 +
         abs(P - optimal['P']) / optimal['P'] * 0.2 +
@@ -71,5 +68,126 @@ for _ in range(n_samples):
 
 df = pd.DataFrame(data)
 df.to_csv('data/raw/crop_yield_dataset.csv', index=False)
-print(f"✅ Dataset created with {len(df)} samples")
+print(f"Dataset created with {len(df)} samples")
 print(df.head())
+
+
+# src
+
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+import os
+
+def load_data(filepath='data/raw/crop_yield_dataset.csv'):
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Dataset not found at {filepath}")
+    df = pd.read_csv(filepath)
+    print(f"Dataset loaded: {df.shape[0]} rows, {df.shape[1]} columns")
+    return df
+
+def preprocess_data(df):
+    df_processed = df.copy()
+    le = LabelEncoder()
+    df_processed['Crop_Encoded'] = le.fit_transform(df_processed['Crop'])
+    
+    feature_cols = ['N', 'P', 'K', 'pH', 'Temperature', 'Humidity', 'Rainfall', 'Crop_Encoded']
+    X = df_processed[feature_cols]
+    y = df_processed['Yield_tons_per_hectare']
+    
+    return X, y, le
+
+def scale_features(X_train, X_test):
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+    return X_train_scaled, X_test_scaled, scaler
+
+def get_train_test_split(df, test_size=0.2, random_state=42):
+    X, y, le = preprocess_data(df)
+    
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=random_state
+    )
+    
+    X_train_scaled, X_test_scaled, scaler = scale_features(X_train, X_test)
+    
+    return X_train_scaled, X_test_scaled, y_train, y_test, scaler, le
+
+
+# src2
+
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, VotingRegressor
+from xgboost import XGBRegressor
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+import joblib
+import warnings
+warnings.filterwarnings('ignore')
+
+class CropYieldModel:
+    def __init__(self):
+        self.models = {}
+        self.best_model = None
+        self.best_model_name = None
+        self.best_score = -np.inf
+        
+    def train_all(self, X_train, y_train):
+        print("=" * 50)
+        print("Training Models...")
+        print("=" * 50)
+        
+        self.models['Random Forest'] = RandomForestRegressor(n_estimators=100, max_depth=10, random_state=42)
+        self.models['XGBoost'] = XGBRegressor(n_estimators=100, max_depth=5, learning_rate=0.1, random_state=42)
+        self.models['Gradient Boosting'] = GradientBoostingRegressor(n_estimators=100, max_depth=5, random_state=42)
+        
+        estimators = [
+            ('rf', RandomForestRegressor(n_estimators=100, random_state=42)),
+            ('xgb', XGBRegressor(n_estimators=100, random_state=42)),
+            ('gb', GradientBoostingRegressor(n_estimators=100, random_state=42))
+        ]
+        self.models['Ensemble'] = VotingRegressor(estimators)
+        
+        for name, model in self.models.items():
+            model.fit(X_train, y_train)
+            train_pred = model.predict(X_train)
+            train_r2 = r2_score(y_train, train_pred)
+            train_rmse = np.sqrt(mean_squared_error(y_train, train_pred))
+            
+            print(f"✅ {name:20s} | R²: {train_r2:.4f} | RMSE: {train_rmse:.4f}")
+            
+            if train_r2 > self.best_score:
+                self.best_score = train_r2
+                self.best_model = model
+                self.best_model_name = name
+        
+        print("=" * 50)
+        print(f"🏆 Best Model: {self.best_model_name} with R²: {self.best_score:.4f}")
+        return self.models
+    
+    def evaluate(self, X_test, y_test):
+        results = []
+        for name, model in self.models.items():
+            y_pred = model.predict(X_test)
+            r2 = r2_score(y_test, y_pred)
+            rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+            mae = mean_absolute_error(y_test, y_pred)
+            
+            results.append({
+                'Model': name,
+                'R² Score': round(r2, 4),
+                'RMSE': round(rmse, 4),
+                'MAE': round(mae, 4)
+            })
+        return pd.DataFrame(results).sort_values('R² Score', ascending=False)
+    
+    def save_best_model(self, filepath='models/crop_yield_model.pkl'):
+        joblib.dump(self.best_model, filepath)
+        print(f"Best model saved to {filepath}")
+    
+    def load_model(self, filepath='models/crop_yield_model.pkl'):
+        self.best_model = joblib.load(filepath)
+        print(f"Model loaded from {filepath}")
+        return self.best_model
