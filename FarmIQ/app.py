@@ -191,7 +191,7 @@ with tab2:
         s_feat = st.selectbox('Analyze impact of:', ['Rainfall', 'Temperature', 'Nitrogen', 'pH'])
         f_map = {'Rainfall': (6, np.linspace(0, 500, 50)), 'Temperature': (4, np.linspace(0, 50, 50)), 'Nitrogen': (0, np.linspace(0, 300, 50)), 'pH': (3, np.linspace(3, 10, 50))}
         idx, rng = f_map[s_feat]
-        st.plotly_chart(plot_sensitivity_interactive(X_raw, idx, s_feat, rng), use_container_width=True)
+        st.plotly_chart(plot_sensitivity_interactive(X_raw, idx, s_feat, rng), width='stretch')
         
         st.divider()
         st.markdown("#### 📊 Comprehensive Correlations")
@@ -199,7 +199,7 @@ with tab2:
             # Select only numeric for correlation
             corr = df_raw.select_dtypes(include=[np.number]).corr()
             fig_h = px.imshow(corr, text_auto=".2f", aspect="auto", color_continuous_scale='Viridis', title="Feature Correlation Matrix")
-            st.plotly_chart(fig_h, use_container_width=True)
+            st.plotly_chart(fig_h, width='stretch')
 
     with c_inf2:
         st.markdown("#### ⚖️ Explaining the Model")
@@ -219,7 +219,7 @@ with tab2:
             lbls = ['N', 'P', 'K', 'pH', 'Temp', 'Hum', 'Rain', 'Crop'][:len(fi)]
             df_fi = pd.DataFrame({'Feature': lbls, 'Importance': fi}).sort_values('Importance')
             fig_fi = px.bar(df_fi, x='Importance', y='Feature', orientation='h', color='Importance', color_continuous_scale='Greens', title="Global Drivers")
-            st.plotly_chart(fig_fi, use_container_width=True)
+            st.plotly_chart(fig_fi, width='stretch')
 
         st.divider()
         st.markdown("#### 🔭 Future Outlook")
