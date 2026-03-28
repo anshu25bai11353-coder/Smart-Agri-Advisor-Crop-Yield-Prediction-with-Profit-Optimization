@@ -118,3 +118,8 @@ Enter invalid values - should handle gracefully
 
 <img width="1470" height="956" alt="Screenshot 2026-03-26 at 4 04 09 PM" src="https://github.com/user-attachments/assets/f891e246-7b08-4b1a-993b-57883bcea55f" />
 
+
+why https://anshu-farmiq.streamlit.app/#smart-agri-advisor
+
+<img width="1470" height="956" alt="Screenshot 2026-03-28 at 10 19 07 AM" src="https://github.com/user-attachments/assets/365893c3-da19-4cd6-9460-53a380ee6d46" />
+
