@@ -125,3 +125,15 @@ why https://anshu-farmiq.streamlit.app/#smart-agri-advisor
 
 <img width="1470" height="956" alt="Screenshot 2026-03-28 at 10 19 07 AM" src="https://github.com/user-attachments/assets/365893c3-da19-4cd6-9460-53a380ee6d46" />
 
+<img width="1470" height="956" alt="Screenshot 2026-03-31 at 6 45 28 PM" src="https://github.com/user-attachments/assets/961f0be9-dac6-4f31-8586-627994d342a9" />
+
+<img width="1470" height="956" alt="Screenshot 2026-03-31 at 6 45 12 PM" src="https://github.com/user-attachments/assets/2b88137f-ac9d-4d42-93ab-883e58d178fe" />
+
+<img width="1470" height="956" alt="Screenshot 2026-03-31 at 6 45 05 PM" src="https://github.com/user-attachments/assets/b55f30dd-b32f-40fe-afbe-1fd1a0930f09" />
+
+<img width="1470" height="956" alt="Screenshot 2026-03-31 at 6 44 46 PM" src="https://github.com/user-attachments/assets/77dce698-7d81-4867-8cd7-82e37bedf2f5" />
+
+<img width="1470" height="956" alt="Screenshot 2026-03-31 at 6 44 32 PM" src="https://github.com/user-attachments/assets/e7ce87c5-53ab-4847-97b7-460793856f48" />
+
+
+
